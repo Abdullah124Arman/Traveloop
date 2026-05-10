@@ -27,8 +27,10 @@ export async function updateInvoice(req: Request, res: Response, next: NextFunct
 
 export async function exportInvoice(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await invoiceService.exportInvoice(req.params.tripId, req.user!.userId);
-    sendSuccess(res, data, 200, 'Invoice export ready');
+    const pdfBuffer = await invoiceService.exportInvoice(req.params.tripId, req.user!.userId);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${req.params.tripId}.pdf`);
+    res.send(pdfBuffer);
   } catch (err: any) {
     if (err.status) return sendError(res, err.message, err.status);
     next(err);

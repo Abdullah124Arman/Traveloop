@@ -1,4 +1,5 @@
 import prisma from '../config/prisma';
+import PDFDocument from 'pdfkit';
 
 async function verifyTripOwner(tripId: string, userId: string) {
   const trip = await prisma.trip.findFirst({ where: { id: tripId, userId } });
@@ -73,9 +74,76 @@ export async function updateInvoice(tripId: string, userId: string, data: {
   });
 }
 
-export async function exportInvoice(tripId: string, userId: string) {
+export async function exportInvoice(tripId: string, userId: string): Promise<Buffer> {
   const trip = await verifyTripOwner(tripId, userId);
   const invoice = await getInvoice(tripId, userId);
-  // Return structured data for PDF generation (pdfkit integration point)
-  return { trip, invoice, exported: true };
+
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ margin: 50 });
+      const buffers: Buffer[] = [];
+
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => resolve(Buffer.concat(buffers)));
+      doc.on('error', reject);
+
+      // Header
+      doc.fontSize(24).text('INVOICE', { align: 'right' });
+      doc.moveDown();
+      doc.fontSize(16).text('Traveloop', { align: 'left' });
+      doc.fontSize(10).fillColor('gray').text('Your personal travel companion', { align: 'left' });
+      doc.moveDown(2);
+
+      // Trip Info
+      doc.fillColor('black').fontSize(14).text('Trip Details:');
+      doc.fontSize(10).text(`Name: ${trip.name}`);
+      if (trip.place) doc.text(`Destination: ${trip.place}`);
+      doc.text(`Dates: ${new Date(trip.startDate).toLocaleDateString()} - ${new Date(trip.endDate).toLocaleDateString()}`);
+      doc.text(`Payment Status: ${invoice.paymentStatus}`);
+      doc.moveDown(2);
+
+      // Table Header
+      const tableTop = doc.y;
+      doc.font('Helvetica-Bold');
+      doc.text('Item', 50, tableTop);
+      doc.text('Qty', 300, tableTop);
+      doc.text('Unit Cost', 380, tableTop);
+      doc.text('Amount', 480, tableTop);
+      
+      doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).stroke();
+      doc.font('Helvetica');
+
+      // Table Rows
+      let yPosition = tableTop + 25;
+      invoice.items.forEach((item) => {
+        doc.text(item.description || item.category, 50, yPosition);
+        doc.text(item.quantity.toString(), 300, yPosition);
+        doc.text(`$${Number(item.unitCost).toFixed(2)}`, 380, yPosition);
+        doc.text(`$${Number(item.amount).toFixed(2)}`, 480, yPosition);
+        yPosition += 20;
+      });
+
+      doc.moveTo(50, yPosition + 10).lineTo(550, yPosition + 10).stroke();
+      yPosition += 20;
+
+      // Totals
+      doc.font('Helvetica-Bold');
+      doc.text('Subtotal:', 380, yPosition);
+      doc.text(`$${Number(invoice.subtotal).toFixed(2)}`, 480, yPosition);
+      yPosition += 20;
+
+      if (invoice.tax) {
+        doc.text('Tax (10%):', 380, yPosition);
+        doc.text(`$${Number(invoice.tax).toFixed(2)}`, 480, yPosition);
+        yPosition += 20;
+      }
+
+      doc.fontSize(12).text('Grand Total:', 380, yPosition);
+      doc.text(`$${Number(invoice.grandTotal).toFixed(2)}`, 480, yPosition);
+
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
+  });
 }
