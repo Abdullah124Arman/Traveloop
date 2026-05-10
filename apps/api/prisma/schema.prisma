@@ -214,7 +214,7 @@ model Invoice {
   updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamp()
 
   // Relations
-  trip  Trip          @relation(fields: [tripId], references: [id])
+  trip  Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
   items InvoiceItem[]
 
   @@map("invoices")
