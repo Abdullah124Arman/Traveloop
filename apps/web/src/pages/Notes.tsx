@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getNotes, createNote, updateNote, deleteNote } from '../services/trip.service';
-import { TripNote } from '../types';
+import type { TripNote } from '../types';
 import { Plus, Trash2, Pencil, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 

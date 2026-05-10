@@ -1,5 +1,5 @@
 import api from './api';
-import { User, CommunityPost } from '../types';
+import type { User, CommunityPost } from '../types';
 
 export const login = (username: string, password: string) =>
   api.post<any>('/auth/login', { username, password }).then(r => r.data.data as { token: string; user: User });

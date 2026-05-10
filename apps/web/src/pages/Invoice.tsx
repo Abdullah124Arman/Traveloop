@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getInvoice, updateInvoice, exportInvoice } from '../services/trip.service';
 import { getTrip } from '../services/trip.service';
-import { Invoice, InvoiceItem, Trip } from '../types';
+import type { Invoice, InvoiceItem, Trip } from '../types';
 import { Download, CheckCircle, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

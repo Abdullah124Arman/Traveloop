@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getTrip, getBudget } from '../services/trip.service';
-import { Trip, BudgetSummary } from '../types';
+import type { Trip, BudgetSummary } from '../types';
 import { format } from 'date-fns';
 import { MapPin, Calendar, DollarSign, Pencil } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';

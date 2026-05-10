@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import {
   getChecklist, addChecklistItem, updateChecklistItem, deleteChecklistItem
 } from '../services/trip.service';
-import { ChecklistItem } from '../types';
+import type { ChecklistItem } from '../types';
 import { Plus, Trash2, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 

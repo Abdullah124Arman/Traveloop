@@ -1,5 +1,5 @@
 import api from './api';
-import { Trip, Stop, ChecklistItem, TripNote, Invoice, BudgetSummary } from '../types';
+import type { Trip, Stop, ChecklistItem, TripNote, Invoice, BudgetSummary } from '../types';
 
 // Trips
 export const getTrips = (status?: string) =>

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { getProfile, updateProfile } from '../services/auth.service';
 import { getTrips } from '../services/trip.service';
-import { User, Trip } from '../types';
+import type { User, Trip } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { Link } from 'react-router-dom';
-import { Pencil, Check, X } from 'lucide-react';
+import { Pencil, Check, X, Camera } from 'lucide-react';
+import { uploadImage } from '../services/upload.service';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
@@ -15,6 +16,8 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<Partial<User>>({});
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     Promise.all([getProfile(), getTrips()])
@@ -24,16 +27,25 @@ export default function Profile() {
 
   async function handleSave() {
     try {
+      setUploading(true);
+      let photoUrl = user?.photoUrl;
+      if (file) {
+        toast.success('Uploading photo...');
+        photoUrl = await uploadImage(file);
+      }
       const updated = await updateProfile({
         firstName: form.firstName, lastName: form.lastName,
         phone: form.phone, city: form.city, country: form.country,
         additionalInfo: form.additionalInfo,
+        photoUrl,
       });
       setUser(updated);
       setStoreUser(updated);
       setEditing(false);
+      setFile(null);
       toast.success('Profile updated');
     } catch { toast.error('Failed to update profile'); }
+    finally { setUploading(false); }
   }
 
   const preplanned = trips.filter(t => t.status === 'UPCOMING');
@@ -49,9 +61,19 @@ export default function Profile() {
       {/* Profile card */}
       <div className="rounded-2xl border p-6 mb-8" style={{ background: 'var(--surface-2)', borderColor: 'var(--border)' }}>
         <div className="flex items-start gap-6">
-          <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold overflow-hidden shrink-0"
+          <div className="relative w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shrink-0"
             style={{ background: 'var(--primary)' }}>
-            {user?.photoUrl ? <img src={user.photoUrl} alt="" className="w-full h-full object-cover" /> : `${user?.firstName?.[0]}${user?.lastName?.[0]}`}
+            {(file || user?.photoUrl) ? (
+              <img src={file ? URL.createObjectURL(file) : user?.photoUrl} alt="" className="w-full h-full object-cover rounded-2xl" />
+            ) : (
+              `${user?.firstName?.[0]}${user?.lastName?.[0]}`
+            )}
+            {editing && (
+              <label className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer text-xs">
+                <Camera size={16} />
+                <input type="file" className="hidden" accept="image/*" onChange={e => e.target.files && setFile(e.target.files[0])} />
+              </label>
+            )}
           </div>
           <div className="flex-1">
             {editing ? (
@@ -97,8 +119,8 @@ export default function Profile() {
           <div className="flex gap-2">
             {editing ? (
               <>
-                <button onClick={() => setEditing(false)} className="p-2 rounded-lg" style={{ color: 'var(--text-muted)' }}><X size={18} /></button>
-                <button onClick={handleSave} className="p-2 rounded-lg" style={{ color: 'var(--success)' }}><Check size={18} /></button>
+                <button onClick={() => { setEditing(false); setFile(null); }} className="p-2 rounded-lg" disabled={uploading} style={{ color: 'var(--text-muted)' }}><X size={18} /></button>
+                <button onClick={handleSave} className="p-2 rounded-lg" disabled={uploading} style={{ color: 'var(--success)' }}><Check size={18} /></button>
               </>
             ) : (
               <button onClick={() => setEditing(true)} className="p-2 rounded-lg" style={{ color: 'var(--text-muted)' }}><Pencil size={18} /></button>

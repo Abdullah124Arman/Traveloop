@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getCommunityPosts, createCommunityPost } from '../services/auth.service';
-import { CommunityPost } from '../types';
+import type { CommunityPost } from '../types';
 import { Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';

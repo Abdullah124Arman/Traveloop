@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getTrip } from '../services/trip.service';
 import { createStop, deleteStop } from '../services/trip.service';
-import { Trip, Stop } from '../types';
+import type { Trip, Stop } from '../types';
 import { format } from 'date-fns';
 import { Plus, Trash2, MapPin, DollarSign, Calendar, FileText, CheckSquare, BookOpen, Receipt } from 'lucide-react';
 import toast from 'react-hot-toast';

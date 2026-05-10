@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getTrips, deleteTrip } from '../services/trip.service';
-import { Trip } from '../types';
+import type { Trip } from '../types';
 import { format } from 'date-fns';
 import { Plus, MapPin, Calendar, Trash2, Eye, Pencil } from 'lucide-react';
 import toast from 'react-hot-toast';

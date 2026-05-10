@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getSearch } from '../services/auth.service';
-import { City, Activity } from '../types';
+import type { City, Activity } from '../types';
 import { Search as SearchIcon, MapPin, Clock, DollarSign } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getDashboard } from '../services/trip.service';
 import { useAuthStore } from '../store/authStore';
-import { Trip, City } from '../types';
+import type { Trip, City } from '../types';
 import { format } from 'date-fns';
 import { Plus, MapPin, Calendar } from 'lucide-react';
 
